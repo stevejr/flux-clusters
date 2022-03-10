@@ -9,7 +9,6 @@ spec:
   url: ssh://git@github.com/stevejr/flux-infra.git
   secretRef:
     name: flux-infra-ssh-credentials
-    namespace: flux-system
   ref:
     tag: v1.0.0
   ignore: |
