@@ -6,7 +6,10 @@ metadata:
   namespace: flux-system
 spec:
   interval: 30m
-  url: https://github.com/stevejr/flux-infra.git
+  url: ssh://git@github.com/stevejr/flux-infra.git
+  secretRef:
+    name: flux-infra-ssh-credentials
+    namespace: flux-system
   ref:
     tag: v1.0.0
   ignore: |
