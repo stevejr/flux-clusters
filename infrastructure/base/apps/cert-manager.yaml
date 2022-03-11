@@ -27,3 +27,4 @@ spec:
       name: cert-manager-webhook
       namespace: cert-manager
   patches: []
+  timeout: 2m
