@@ -15,8 +15,8 @@ patches:
       value:
         patch: |
           - op: add
-            path: /spec/values/nodeSelector/-
-            value: "node-group-name: privileged-ng"
+            path: /spec/values/nodeSelector
+            value: {node-group-name: privileged-ng}
         target:
           kind: HelmRelease
           name: cert-manager
