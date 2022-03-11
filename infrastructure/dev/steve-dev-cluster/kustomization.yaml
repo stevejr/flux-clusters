@@ -5,37 +5,38 @@ resources:
   - ../../base
 
 patches:
-- target:
-    kind: Kustomization
-    name: cert-manager
-    namespace: flux-system
-  patch: |-
-    - op: add
-      path: /spec/patches/-
-      value:
-        patch: |
-          - op: add
-            path: /spec/values/nodeSelector
-            value: {node-group-name: privileged-ng}
-        target:
-          kind: HelmRelease
-          name: cert-manager
-          namespace: cert-manager
-    - op: add
-      path: /spec/patches/-
-      value:
-        patch: |
-          - op: add
-            path: /spec/values/tolerations/-
-            value:
-              key: "privileged"
-              operator: "Equal"
-              value: "true"
-              effect: "NoSchedule" 
-        target:
-          kind: HelmRelease
-          name: cert-manager
-          namespace: cert-manager
+# Example of how to patch the Kustomization with a patch that will be applied to the objects it creates, in this example a HelmRelease
+# - target:
+#     kind: Kustomization
+#     name: cert-manager
+#     namespace: flux-system
+#   patch: |-
+#     - op: add
+#       path: /spec/patches/-
+#       value:
+#         patch: |
+#           - op: add
+#             path: /spec/values/nodeSelector
+#             value: {node-group-name: privileged-ng}
+#         target:
+#           kind: HelmRelease
+#           name: cert-manager
+#           namespace: cert-manager
+#     - op: add
+#       path: /spec/patches/-
+#       value:
+#         patch: |
+#           - op: add
+#             path: /spec/values/tolerations/-
+#             value:
+#               key: "privileged"
+#               operator: "Equal"
+#               value: "true"
+#               effect: "NoSchedule" 
+#         target:
+#           kind: HelmRelease
+#           name: cert-manager
+#           namespace: cert-manager
 - target:
     kind: GitRepository
     name: flux-infra
@@ -43,4 +44,4 @@ patches:
   patch: |-
     - op: replace
       path: /spec/ref/tag
-      value: v1.0.3
+      value: v1.0.4
