@@ -11,7 +11,8 @@ spec:
     name: flux-infra
     namespace: flux-system
   dependsOn:
-    - cert-manager-crds
+    - name: cert-manager-crds
+      namespace: flux-system
   healthChecks:
     - apiVersion: apps/v1
       kind: Deployment
