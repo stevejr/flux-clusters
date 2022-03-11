@@ -11,3 +11,4 @@ spec:
   path: ./infrastructure/dev/steve-dev-cluster
   prune: true
   wait: true
+  timeout: 2m
