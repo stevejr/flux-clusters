@@ -22,3 +22,11 @@ patches:
           kind: HelmRelease
           name: cert-manager
           namespace: cert-manager
+- target:
+    kind: GitRepository
+    name: flux-infra
+    namespace: flux-system
+  patch: |-
+    - op: replace
+      path: /spec/ref/tag
+      value: 1.0.3
