@@ -1,0 +1,12 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: flux-infra
+  namespace: flux-system
+spec:
+  interval: 30m
+  url: ssh://git@github.com/stevejr/flux-infra.git
+  secretRef:
+    name: flux-infra-ssh-credentials
+  ref:
+    tag: v1.0.1
