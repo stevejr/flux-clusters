@@ -9,4 +9,4 @@ spec:
   secretRef:
     name: flux-infra-ssh-credentials
   ref:
-    tag: v1.0.1
+    tag: v1.0.2
