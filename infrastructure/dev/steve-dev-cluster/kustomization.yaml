@@ -21,6 +21,21 @@ patches:
           kind: HelmRelease
           name: cert-manager
           namespace: cert-manager
+    - op: add
+      path: /spec/patches/-
+      value:
+        patch: |
+          - op: add
+            path: /spec/values/tolerations/-
+            value:
+              key: "privileged"
+              operator: "Equal"
+              value: "true"
+              effect: "NoSchedule" 
+        target:
+          kind: HelmRelease
+          name: cert-manager
+          namespace: cert-manager
 - target:
     kind: GitRepository
     name: flux-infra
