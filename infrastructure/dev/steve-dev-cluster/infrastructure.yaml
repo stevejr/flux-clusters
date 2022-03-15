@@ -145,6 +145,10 @@ spec:
               requests:
                 storage: 2Gi
             storageClassName: "local-path"
+      target:
+        kind: VMSingle
+        name: vmsingle
+        namespace: victoria-metrics
     - patch: |-
         apiVersion: helm.toolkit.fluxcd.io/v2beta1
         kind: HelmRelease
@@ -159,6 +163,10 @@ spec:
                 name: cluster-autoscaler
             image:
               tag: "v1.18.3"
+      target:
+        kind: HelmRelease
+        name: cluster-autoscaler
+        namespace: kube-system
     - patch: |-
         apiVersion: helm.toolkit.fluxcd.io/v2beta1
         kind: HelmRelease
@@ -186,6 +194,10 @@ spec:
                 limits:
                   cpu: 50m
                   memory: 256Mi
+      target:
+        kind: HelmRelease
+        name: cert-manager
+        namespace: cert-manager
     - patch: |-
         apiVersion: helm.toolkit.fluxcd.io/v2beta1
         kind: HelmRelease
@@ -219,6 +231,10 @@ spec:
                           {{ end }}
             server:
               enabled: false
+      target:
+        kind: HelmRelease
+        name: prometheus
+        namespace: prometheus
     # - patch: |-
     #     apiVersion: helm.toolkit.fluxcd.io/v2beta1
     #     kind: HelmRelease
