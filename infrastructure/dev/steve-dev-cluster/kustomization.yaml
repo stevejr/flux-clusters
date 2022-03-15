@@ -4,7 +4,7 @@ kind: Kustomization
 resources:
   - infrastructure.yaml
   - imagepolicy.yaml
-  - vm-scrape-jobs.yaml
+  # - vm-scrape-jobs.yaml
 
 # patches:
 # Example of how to patch the Kustomization with a patch that will be applied to the objects it creates, in this example a HelmRelease
