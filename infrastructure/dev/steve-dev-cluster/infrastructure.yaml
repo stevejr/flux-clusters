@@ -197,9 +197,6 @@ spec:
         spec:
           values:
             installCRDs: false
-            serviceAccount:
-              create: false
-              name: cert-manager
             resources:
               requests:
                 cpu: 20m
