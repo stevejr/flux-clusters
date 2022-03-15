@@ -1,7 +1,7 @@
 apiVersion: image.toolkit.fluxcd.io/v1beta1
 kind: ImagePolicy
 metadata:
-  name: amazon-cloudwatch-fluent-bit-lc-staging1
+  name: amazon-cloudwatch-fluent-bit-steve-dev-cluster
   namespace: flux-system
 spec:
   imageRepositoryRef:
