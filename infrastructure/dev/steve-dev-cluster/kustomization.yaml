@@ -2,9 +2,11 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - ../../base
+  - infrastructure.yaml
+  - imagepolicy.yaml
+  - vm-scrape-jobs.yaml
 
-patches:
+# patches:
 # Example of how to patch the Kustomization with a patch that will be applied to the objects it creates, in this example a HelmRelease
 # - target:
 #     kind: Kustomization
@@ -37,11 +39,11 @@ patches:
 #           kind: HelmRelease
 #           name: cert-manager
 #           namespace: cert-manager
-- target:
-    kind: GitRepository
-    name: flux-infra
-    namespace: flux-system
-  patch: |-
-    - op: replace
-      path: /spec/ref/tag
-      value: v1.0.4
+# - target:
+#     kind: GitRepository
+#     name: flux-infra
+#     namespace: flux-system
+#   patch: |-
+#     - op: replace
+#       path: /spec/ref/tag
+#       value: v1.0.4

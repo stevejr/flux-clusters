@@ -1,0 +1,14 @@
+serverFiles:
+  alerts:
+    gloo:
+    - alert: MissingGatewayProxyInAz
+      annotations:
+        description: >-
+           At least 1 AZ is missing a Gloo Gateway Proxy deployment for the last 2 minutes.
+        summary: At least 1 AZ is missing a Gloo Gateway Proxy deployment.
+      expr: >-
+        count(kube_pod_info{namespace="gloo-system", pod=~"gateway-proxy.*"} * on(node) group_left(label_topology_kubernetes_io_zone) kube_node_labels) by (label_topology_kubernetes_io_zone) < count(count(kube_node_labels{label_node_group_name="privileged-ng"}) by (label_topology_kubernetes_io_zone))
+      for: 2m
+      labels:
+        service: gloo
+        severity: critical

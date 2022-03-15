@@ -1,0 +1,46 @@
+# Pod Scrape Job for Lens Cloud Backend Billing Metrics
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMPodScrape
+metadata:
+  name: kubernetes-lens-cloud-backend-billing-metrics
+  namespace: victoria-metrics
+spec:
+  jobLabel: job
+  podMetricsEndpoints:
+    - scrape_interval: 30s
+      scrapeTimeout: 10s
+      honorLabels: true
+      honorTimestamps: true
+      path: "/metrics"
+      relabelConfigs:
+        #Custom
+        - action: drop
+          sourceLabels: [ "__meta_kubernetes_pod_container_init" ]
+          regex: "true"
+        - action: keep
+          regex: "true"
+          sourceLabels: [ "__meta_kubernetes_pod_annotation_prometheus_io_billingScrape" ]
+        - action: keep_if_equal
+          sourceLabels: [ "__meta_kubernetes_pod_annotation_prometheus_io_port", "__meta_kubernetes_pod_container_port_number" ]
+        #Standard
+        - action: replace
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:$2
+          sourceLabels: [ "__address__", "__meta_kubernetes_pod_annotation_prometheus_io_port" ]
+          targetLabel: __address__
+        - action: labelmap
+          regex: __meta_kubernetes_pod_annotation_(.+)
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - sourceLabels: [ "__meta_kubernetes_namespace" ] 
+          action: replace
+          targetLabel: kubernetes_namespace
+        - sourceLabels: [ "__meta_kubernetes_pod_name" ]
+          action: replace
+          targetLabel: kubernetes_pod_name
+        - sourceLabels: [ "__meta_kubernetes_pod_phase" ]
+          regex: Pending|Succeeded|Failed|Completed
+          action: drop
+  namespaceSelector:
+    any: true
+---

@@ -1,0 +1,26 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMSingle
+metadata:
+  name: vmsingle
+  namespace: victoria-metrics
+spec:
+  extraArgs:
+    retentionPeriod: 2d
+    promscrape.maxScrapeSize: 50MB
+  image:
+    repository: victoriametrics/victoria-metrics
+    tag: v1.72.0
+    pullPolicy: IfNotPresent
+  removePvcAfterDelete: true
+  resources:
+    limits:
+      cpu: 1500m
+      memory: 5Gi
+  retentionPeriod: 2d
+  storage:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 40Gi
+    storageClassName: "local-path"

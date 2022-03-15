@@ -1,0 +1,125 @@
+###
+# Only needed if Cluster-Autoscaler is to be deployed in an EKS cluster as the eksctl cluster
+# config file will create an IAM role for the Cluster-Autoscaler ServiceAccount
+###
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: cluster-autoscaler
+  namespace: kube-system
+spec:
+  values:
+    rbac:
+      serviceAccount:
+        create: false
+        name: cluster-autoscaler
+    image:
+      tag: "v1.18.3"
+---
+###
+# Only needed if Cert-Manager is to be deployed in an EKS cluster as the eksctl cluster
+# config file will create an IAM role for the Cert-Manager ServiceAccount
+###
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: cert-manager
+  namespace: cert-manager
+spec:
+  values:
+    installCRDs: false
+    serviceAccount:
+      create: false
+      name: cert-manager
+    resources:
+      requests:
+        cpu: 20m
+        memory: 75Mi
+      limits:
+        cpu: 50m
+        memory: 256Mi
+    cainjector:
+      resources:
+        requests:
+          cpu: 20m
+          memory: 50Mi
+        limits:
+          cpu: 50m
+          memory: 256Mi
+---
+###
+# Only needed if Prometheus is deployed and Alerts are going to an external service i.e. Slack
+###
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: prometheus
+  namespace: prometheus
+spec:
+  values:
+    alertmanager:
+      persistentVolume:
+        storageClass: "local-path"
+    alertmanagerFiles:
+      alertmanager.yml:
+        global:
+          slack_api_url_file: /etc/slackurl/address
+        receivers:
+          - name: default-receiver
+            slack_configs:
+              - channel: 'lens-platform-notifications'
+                send_resolved: true
+                title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] Monitoring Event Notification - STAGING'
+                text: |-
+                  *Cluster:* `lc-staging1`
+                  {{ range .Alerts }}
+                    *Alert:* {{ .Labels.alertname }} - `{{ .Labels.severity }}`
+                    *Description:* {{ .Annotations.summary }}
+                    *Details:*
+                    {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
+                    {{ end }}
+                    *Graph:* <{{ .GeneratorURL }}|:chart_with_upwards_trend:> *Runbook:* <{{ .Annotations.runbook_url }}|:spiral_note_pad:>
+                  {{ end }}
+    server:
+      enabled: false
+---
+###
+# Only needed if Cloudwatch Logs will be used with Fluent Bit
+###
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: amazon-cloudwatch-fluent-bit
+  namespace: amazon-cloudwatch
+spec:
+  values:
+    image:
+      repository: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/aws-for-fluent-bit
+      tag: 2.21.6 # {"$imagepolicy": "flux-system:amazon-cloudwatch-fluent-bit-lc-staging1:tag"}
+---
+###
+# Only needed if Cloudwatch Logs will be used with Fluent Bit
+# Hard code the image registry region to eu-west-1 for now as cross region replication is not replicating the
+# image manifest which is needed for multi-arch images. See https://github.com/aws/containers-roadmap/issues/1195
+###
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: grafana
+  namespace: grafana
+spec:
+  values:
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+          - name: Prometheus
+            type: prometheus
+            url: http://prometheus-server.prometheus
+            access: proxy
+            isDefault: false
+          - name: CloudWatch
+            type: cloudwatch
+            jsonData:
+              authType: default
+              defaultRegion: ${AWS_REGION}
