@@ -1,0 +1,39 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageUpdateAutomation
+metadata:
+  name: flux-system
+  namespace: flux-system
+spec:
+  sourceRef:
+    kind: GitRepository # the default, but good practice to be explicit here
+    name: flux-system
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author: 
+        email: lensplatformbot@users.noreply.github.com
+        name: lensplatformbot
+      messageTemplate: |
+        [ci skip] Automated image update - steve-dev-cluster
+
+        Automation name: {{ .AutomationObject }}
+
+        Files:
+        {{ range $filename, $_ := .Updated.Files -}}
+        - {{ $filename }}
+        {{ end -}}
+
+        Objects:
+        {{ range $resource, $_ := .Updated.Objects -}}
+        - {{ $resource.Kind }} {{ $resource.Name }}
+        {{ end -}}
+
+        Images:
+        {{ range .Updated.Images -}}
+        - {{.}}
+        {{ end -}}
+  interval: 1m0s
+  update:
+    strategy: Setters
