@@ -36,6 +36,9 @@ spec:
       PROMETHEUS_TOPOLOGY_ZONE: "eu-west-1a"
       FB_READ_FROM_HEAD: "Off"
       FB_READ_FROM_TAIL: "On"
+  images:
+    - name: victoriametrics/victoria-metrics
+      newTag: v1.72.0 # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
   patches:
     - patch: |-
         apiVersion: operator.victoriametrics.com/v1beta1
@@ -47,11 +50,6 @@ spec:
           extraArgs:
             retentionPeriod: 1d
             promscrape.maxScrapeSize: 50MB
-          image:
-            repository: victoriametrics/victoria-metrics
-            tag: v1.72.0 # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
-            pullPolicy: IfNotPresent
-          removePvcAfterDelete: true
           resources:
             limits:
               cpu: 500m
@@ -59,13 +57,7 @@ spec:
             requests:
               cpu: 100m
               memory: 128Mi
-          retentionPeriod: 2d
           storage:
-            accessModes:
-              - ReadWriteOnce
-            resources:
-              requests:
-                storage: 2Gi
             storageClassName: "local-path"
       target:
         kind: VMSingle
