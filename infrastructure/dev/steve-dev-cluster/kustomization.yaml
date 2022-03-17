@@ -3,7 +3,7 @@ kind: Kustomization
 
 resources:
   - infrastructure.yaml
-  # - imagepolicy.yaml
+  - imagepolicy.yaml
   # - vm-scrape-jobs.yaml
 
 # patches:

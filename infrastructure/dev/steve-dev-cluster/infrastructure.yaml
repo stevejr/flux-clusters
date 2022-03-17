@@ -49,7 +49,7 @@ spec:
             promscrape.maxScrapeSize: 50MB
           image:
             repository: victoriametrics/victoria-metrics
-            tag: v1.72.0
+            tag: v1.72.0 # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
             pullPolicy: IfNotPresent
           removePvcAfterDelete: true
           resources:

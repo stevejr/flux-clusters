@@ -3,5 +3,6 @@ kind: Kustomization
 
 resources:
   - flux-system
+  - gitrepositories.yaml
   - infrastructure.yaml
   - ../../../infrastructure/dev/steve-dev-cluster
