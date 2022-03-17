@@ -36,9 +36,9 @@ spec:
       PROMETHEUS_TOPOLOGY_ZONE: "eu-west-1a"
       FB_READ_FROM_HEAD: "Off"
       FB_READ_FROM_TAIL: "On"
-  images:
-  - name: docker.io/victoriametrics/victoria-metrics
-    newTag: v1.74.0 # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
+    substituteFrom:
+      - kind: ConfigMap
+        name: image-patches
   patches:
   - patch: |-
       apiVersion: operator.victoriametrics.com/v1beta1
@@ -47,8 +47,6 @@ spec:
         name: vmsingle
         namespace: victoria-metrics
       spec:
-        image:
-          tag: v1.72.0 # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
         extraArgs:
           retentionPeriod: 1d
           promscrape.maxScrapeSize: 50MB

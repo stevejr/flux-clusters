@@ -1,10 +1,22 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: flux-system
 
 resources:
   - infrastructure.yaml
   - imagepolicy.yaml
   # - vm-scrape-jobs.yaml
+
+generatorOptions:
+  disableNameSuffixHash: false
+
+configMapGenerator:
+- name: image-patches
+  literals:
+    - VMSINGLE_VERSION=v1.72.0 # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
+
+configurations:
+  - kustomizeconfig.yaml
 
 # patches:
 # Example of how to patch the Kustomization with a patch that will be applied to the objects it creates, in this example a HelmRelease
