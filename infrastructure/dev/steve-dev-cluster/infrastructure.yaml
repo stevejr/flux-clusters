@@ -37,7 +37,7 @@ spec:
       FB_READ_FROM_HEAD: "Off"
       FB_READ_FROM_TAIL: "On"
   images:
-  - name: victoriametrics/victoria-metrics
+  - name: docker.io/victoriametrics/victoria-metrics
     newTag: v1.74.0 # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
   patches:
   - patch: |-
