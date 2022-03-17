@@ -47,6 +47,8 @@ spec:
         name: vmsingle
         namespace: victoria-metrics
       spec:
+        image:
+          tag: v1.72.0 # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
         extraArgs:
           retentionPeriod: 1d
           promscrape.maxScrapeSize: 50MB
