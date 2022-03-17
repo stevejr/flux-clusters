@@ -6,26 +6,26 @@ metadata:
 spec:
   interval: 10m0s
   dependsOn:
-    - name: infrastructure-namespaces
-    - name: victoria-metrics-operator
+  - name: infrastructure-namespaces
+  - name: victoria-metrics-operator
   sourceRef:
     kind: GitRepository
     name: flux-infra
   path: .
   prune: true
   healthChecks:
-    - apiVersion: apps/v1
-      kind: Deployment
-      name: vmagent-vmagent
-      namespace: victoria-metrics
-    - apiVersion: apps/v1
-      kind: Deployment
-      name: vmalert-vmalert
-      namespace: victoria-metrics
-    - apiVersion: apps/v1
-      kind: Deployment
-      name: vmsingle-vmsingle
-      namespace: victoria-metrics
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: vmagent-vmagent
+    namespace: victoria-metrics
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: vmalert-vmalert
+    namespace: victoria-metrics
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: vmsingle-vmsingle
+    namespace: victoria-metrics
   postBuild:
     substitute:
       AWS_ACCOUNT_ID: "841310725496"
@@ -37,165 +37,164 @@ spec:
       FB_READ_FROM_HEAD: "Off"
       FB_READ_FROM_TAIL: "On"
   images:
-    - name: victoriametrics/victoria-metrics
-      newTag: v1.72.0 # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
+  - name: victoriametrics/victoria-metrics
+    newTag: v1.74.0 # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
   patches:
-    - patch: |-
-        apiVersion: operator.victoriametrics.com/v1beta1
-        kind: VMSingle
-        metadata:
-          name: vmsingle
-          namespace: victoria-metrics
-        spec:
-          extraArgs:
-            retentionPeriod: 1d
-            promscrape.maxScrapeSize: 50MB
-          resources:
-            limits:
-              cpu: 500m
-              memory: 1Gi
-            requests:
-              cpu: 100m
-              memory: 128Mi
-          storage:
-            storageClassName: "local-path"
-      target:
-        kind: VMSingle
+  - patch: |-
+      apiVersion: operator.victoriametrics.com/v1beta1
+      kind: VMSingle
+      metadata:
         name: vmsingle
         namespace: victoria-metrics
-    - patch: |-
-        apiVersion: operator.victoriametrics.com/v1beta1
-        kind: VMAlert
-        metadata:
-          name: vmalert
-          namespace: victoria-metrics
-        spec:
-          resources:
-            limits:
-              cpu: 500m
-              memory: 1Gi
-            requests:
-              cpu: 100m
-              memory: 128Mi
-      target:
-        kind: VMAlert
+      spec:
+        extraArgs:
+          retentionPeriod: 1d
+          promscrape.maxScrapeSize: 50MB
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        storage:
+          storageClassName: "local-path"
+    target:
+      kind: VMSingle
+      name: vmsingle
+      namespace: victoria-metrics
+  - patch: |-
+      apiVersion: operator.victoriametrics.com/v1beta1
+      kind: VMAlert
+      metadata:
         name: vmalert
         namespace: victoria-metrics
-    - patch: |-
-        apiVersion: helm.toolkit.fluxcd.io/v2beta1
-        kind: HelmRelease
-        metadata:
-          name: cluster-autoscaler
-          namespace: kube-system
-        spec:
-          values:
-            rbac:
-              serviceAccount:
-                create: false
-                name: cluster-autoscaler
-            image:
-              tag: "v1.18.3"
-      target:
-        kind: HelmRelease
+      spec:
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+    target:
+      kind: VMAlert
+      name: vmalert
+      namespace: victoria-metrics
+  - patch: |-
+      apiVersion: helm.toolkit.fluxcd.io/v2beta1
+      kind: HelmRelease
+      metadata:
         name: cluster-autoscaler
         namespace: kube-system
-    - patch: |-
-        apiVersion: helm.toolkit.fluxcd.io/v2beta1
-        kind: HelmRelease
-        metadata:
-          name: cert-manager
-          namespace: cert-manager
-        spec:
-          values:
-            installCRDs: false
+      spec:
+        values:
+          rbac:
+            serviceAccount:
+              create: false
+              name: cluster-autoscaler
+          image:
+            tag: "v1.18.3"
+    target:
+      kind: HelmRelease
+      name: cluster-autoscaler
+      namespace: kube-system
+  - patch: |-
+      apiVersion: helm.toolkit.fluxcd.io/v2beta1
+      kind: HelmRelease
+      metadata:
+        name: cert-manager
+        namespace: cert-manager
+      spec:
+        values:
+          installCRDs: false
+          resources:
+            requests:
+              cpu: 20m
+              memory: 75Mi
+            limits:
+              cpu: 50m
+              memory: 256Mi
+          cainjector:
             resources:
               requests:
                 cpu: 20m
-                memory: 75Mi
+                memory: 50Mi
               limits:
                 cpu: 50m
                 memory: 256Mi
-            cainjector:
-              resources:
-                requests:
-                  cpu: 20m
-                  memory: 50Mi
-                limits:
-                  cpu: 50m
-                  memory: 256Mi
-      target:
-        kind: HelmRelease
-        name: cert-manager
-        namespace: cert-manager
-    - patch: |-
-        apiVersion: helm.toolkit.fluxcd.io/v2beta1
-        kind: HelmRelease
-        metadata:
-          name: prometheus
-          namespace: prometheus
-        spec:
-          values:
-            alertmanager:
-              persistentVolume:
-                storageClass: "local-path"
-            alertmanagerFiles:
-              alertmanager.yml:
-                global:
-                  slack_api_url_file: /etc/slackurl/address
-                receivers:
-                  - name: default-receiver
-                    slack_configs:
-                      - channel: 'lens-platform-notifications'
-                        send_resolved: true
-                        title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] Monitoring Event Notification - STAGING'
-                        text: |-
-                          *Cluster:* `lc-staging1`
-                          {{ range .Alerts }}
-                            *Alert:* {{ .Labels.alertname }} - `{{ .Labels.severity }}`
-                            *Description:* {{ .Annotations.summary }}
-                            *Details:*
-                            {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
-                            {{ end }}
-                            *Graph:* <{{ .GeneratorURL }}|:chart_with_upwards_trend:> *Runbook:* <{{ .Annotations.runbook_url }}|:spiral_note_pad:>
-                          {{ end }}
-            server:
-              enabled: false
-      target:
-        kind: HelmRelease
+    target:
+      kind: HelmRelease
+      name: cert-manager
+      namespace: cert-manager
+  - patch: |-
+      apiVersion: helm.toolkit.fluxcd.io/v2beta1
+      kind: HelmRelease
+      metadata:
         name: prometheus
         namespace: prometheus
-    # - patch: |-
-    #     apiVersion: helm.toolkit.fluxcd.io/v2beta1
-    #     kind: HelmRelease
-    #     metadata:
-    #       name: amazon-cloudwatch-fluent-bit
-    #       namespace: amazon-cloudwatch
-    #     spec:
-    #       values:
-    #         image:
-    #           repository: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/aws-for-fluent-bit
-    #           tag: 2.21.6 # {"$imagepolicy": "flux-system:amazon-cloudwatch-fluent-bit-lc-staging1:tag"}
-    # - patch: |-
-    #     apiVersion: helm.toolkit.fluxcd.io/v2beta1
-    #     kind: HelmRelease
-    #     metadata:
-    #       name: grafana
-    #       namespace: grafana
-    #     spec:
-    #       values:
-    #         datasources:
-    #           datasources.yaml:
-    #             apiVersion: 1
-    #             datasources:
-    #               - name: Prometheus
-    #                 type: prometheus
-    #                 url: http://prometheus-server.prometheus
-    #                 access: proxy
-    #                 isDefault: false
-    #               - name: CloudWatch
-    #                 type: cloudwatch
-    #                 jsonData:
-    #                   authType: default
-    #                   defaultRegion: ${AWS_REGION}
+      spec:
+        values:
+          alertmanager:
+            persistentVolume:
+              storageClass: "local-path"
+          alertmanagerFiles:
+            alertmanager.yml:
+              global:
+                slack_api_url_file: /etc/slackurl/address
+              receivers:
+                - name: default-receiver
+                  slack_configs:
+                    - channel: 'lens-platform-notifications'
+                      send_resolved: true
+                      title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] Monitoring Event Notification - STAGING'
+                      text: |-
+                        *Cluster:* `lc-staging1`
+                        {{ range .Alerts }}
+                          *Alert:* {{ .Labels.alertname }} - `{{ .Labels.severity }}`
+                          *Description:* {{ .Annotations.summary }}
+                          *Details:*
+                          {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
+                          {{ end }}
+                          *Graph:* <{{ .GeneratorURL }}|:chart_with_upwards_trend:> *Runbook:* <{{ .Annotations.runbook_url }}|:spiral_note_pad:>
+                        {{ end }}
+          server:
+            enabled: false
+    target:
+      kind: HelmRelease
+      name: prometheus
+      namespace: prometheus
+      # - patch: |-
+      #     apiVersion: helm.toolkit.fluxcd.io/v2beta1
+      #     kind: HelmRelease
+      #     metadata:
+      #       name: amazon-cloudwatch-fluent-bit
+      #       namespace: amazon-cloudwatch
+      #     spec:
+      #       values:
+      #         image:
+      #           repository: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/aws-for-fluent-bit
+      #           tag: 2.21.6 # {"$imagepolicy": "flux-system:amazon-cloudwatch-fluent-bit-lc-staging1:tag"}
+      # - patch: |-
+      #     apiVersion: helm.toolkit.fluxcd.io/v2beta1
+      #     kind: HelmRelease
+      #     metadata:
+      #       name: grafana
+      #       namespace: grafana
+      #     spec:
+      #       values:
+      #         datasources:
+      #           datasources.yaml:
+      #             apiVersion: 1
+      #             datasources:
+      #               - name: Prometheus
+      #                 type: prometheus
+      #                 url: http://prometheus-server.prometheus
+      #                 access: proxy
+      #                 isDefault: false
+      #               - name: CloudWatch
+      #                 type: cloudwatch
+      #                 jsonData:
+      #                   authType: default
+      #                   defaultRegion: ${AWS_REGION}
   timeout: 2m
----
