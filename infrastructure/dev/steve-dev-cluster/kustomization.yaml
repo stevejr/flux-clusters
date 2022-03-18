@@ -6,6 +6,10 @@ resources:
 - imagepolicy.yaml
 # - vm-scrape-jobs.yaml
 
+images:
+- name: docker.io/victoriametrics/victoria-metrics
+  newTag: v1.72.0 # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
+
 # generatorOptions:
 #   disableNameSuffixHash: false
 # configMapGenerator:
