@@ -40,8 +40,8 @@ spec:
       #   - kind: ConfigMap
       #     name: image-patches
   images:
-    name: docker.io/victoriametrics/victoria-metrics
-    newTag: v1.74.0 # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
+    - name: docker.io/victoriametrics/victoria-metrics
+      newTag: v1.74.0 # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
   patches:
   - patch: |-
       apiVersion: operator.victoriametrics.com/v1beta1
