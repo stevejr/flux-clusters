@@ -1,0 +1,39 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: metabase
+  namespace: flux-system
+spec:
+  interval: 10m
+  url: ssh://git@github.com/stevejr/flux-infra.git
+  secretRef:
+    name: flux-infra-ssh-credentials
+  ref:
+    tag: v4.1.2
+  ignore: |
+    # exclude all
+    /*
+    # include apps/metabase directory
+    !/apps/metabase
+    !/helm/charts/metabase
+---
+# All apps for the environment under 1 Kustomization object
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: metabase
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  dependsOn:
+    - name: infrastructure
+  sourceRef:
+    kind: GitRepository
+    name: metabase
+  path: ./apps/metabase
+  prune: true
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: metabase
+      namespace: metabase
