@@ -6,14 +6,14 @@ resources:
 - imagepolicy.yaml
 # - vm-scrape-jobs.yaml
 
-generatorOptions:
-  disableNameSuffixHash: false
-configMapGenerator:
-- name: image-patches
-  literals:
-  - v1.74.0 # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
-configurations:
-- kustomizeconfig.yaml
+# generatorOptions:
+#   disableNameSuffixHash: false
+# configMapGenerator:
+# - name: image-patches
+#   literals:
+#   - v1.74.0 
+# configurations:
+# - kustomizeconfig.yaml
 
 # patches:
 # Example of how to patch the Kustomization with a patch that will be applied to the objects it creates, in this example a HelmRelease
