@@ -6,4 +6,15 @@ resources:
   - gitrepositories.yaml
   - imageupdateautomation.yaml
   - infrastructure.yaml
-  - ../../../infrastructure/dev/steve-dev-cluster
+  - imagepolicy.yaml
+  # - ../../../infrastructure/dev/steve-dev-cluster
+
+patches:
+  - target:
+      kind: GitRepository
+      name: flux-infra
+      namespace: flux-system
+    patch: |-
+      - op: replace
+        path: /spec/ref/tag
+        value: v4.1.2
