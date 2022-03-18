@@ -8,7 +8,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-infra
-  path: ./storage
+  path: ./system/storage
   prune: true
   timeout: 2m
 ---
@@ -24,7 +24,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-infra
-  path: ./crds
+  path: ./system/crds
   prune: true
   timeout: 2m
 ---
@@ -40,7 +40,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-infra
-  path: ./namespaces
+  path: ./system/namespaces
   prune: true
   timeout: 2m
 ---
@@ -57,7 +57,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-infra
-  path: ./apps/victoria-metrics/operator
+  path: ./system/apps/victoria-metrics/operator
   prune: true
   healthChecks:
     - apiVersion: apps/v1
@@ -79,7 +79,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-infra
-  path: .
+  path: ./system
   prune: true
   healthChecks:
   - apiVersion: apps/v1
@@ -104,6 +104,7 @@ spec:
       PROMETHEUS_TOPOLOGY_ZONE: "eu-west-1a"
       FB_READ_FROM_HEAD: "Off"
       FB_READ_FROM_TAIL: "On"
+      VMSINGLE_TAG: "v1.74.0" # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
   timeout: 2m
   patches:
   - patch: |-
@@ -276,14 +277,14 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-infra
-  path: ./certs
+  path: ./system/certs
   prune: true
   postBuild:
     substitute:
       AWS_ACCOUNT_ID: "841310725496"
       AWS_REGION: "eu-west-1"
       CLUSTER_CONTACT_EMAIL: "lenscloud-platform@users.noreply.github.com"
-      CLUSTER_NAME: "lc-staging1"
+      CLUSTER_NAME: "steve-dev-cluster"
       ROUTE53_HOSTED_ZONE_ID: "Z00406503FU8D8OYQ3FZF"
   timeout: 2m
 ---

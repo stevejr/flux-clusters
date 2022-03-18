@@ -5,9 +5,8 @@ resources:
   - flux-system
   - gitrepositories.yaml
   - imageupdateautomation.yaml
-  - infrastructure.yaml
+  - system.yaml
   - imagepolicy.yaml
-  # - ../../../infrastructure/dev/steve-dev-cluster
 
 patches:
   - target:
@@ -17,4 +16,4 @@ patches:
     patch: |-
       - op: replace
         path: /spec/ref/tag
-        value: v4.1.2
+        value: v5.0.0
