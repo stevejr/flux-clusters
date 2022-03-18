@@ -11,7 +11,7 @@ generatorOptions:
 configMapGenerator:
 - name: image-patches
   literals:
-  - victoriametrics/victoria-metrics:v1.74.0 # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster"}
+  - tag=v1.72.0 # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
 configurations:
 - kustomizeconfig.yaml
 
