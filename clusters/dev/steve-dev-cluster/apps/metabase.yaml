@@ -37,3 +37,4 @@ spec:
       kind: Deployment
       name: metabase
       namespace: metabase
+  timeout: 2m
