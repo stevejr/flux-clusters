@@ -1,0 +1,43 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: istio-operator
+  namespace: flux-system
+spec:
+  interval: 10m
+  url: ssh://git@github.com/stevejr/flux-infra.git
+  secretRef:
+    name: flux-infra-ssh-credentials
+  ref:
+    tag: v4.1.2
+  ignore: |
+    # exclude all
+    /*
+    # include apps/istio-operator directory
+    !/apps/istio-operator
+    !/helm/charts/istio-operator
+---
+# All apps for the environment under 1 Kustomization object
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: istio-operator
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  dependsOn:
+    - name: infrastructure
+  sourceRef:
+    kind: GitRepository
+    name: istio-operator
+  path: ./apps/istio-operator
+  prune: true
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: istio-operator
+      namespace: istio-operator
+  postBuild:
+    substitute:
+      ISTIO_OPERATOR_VERSION: "1.12.0"
+  timeout: 2m
