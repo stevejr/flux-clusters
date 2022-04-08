@@ -104,7 +104,7 @@ spec:
       PROMETHEUS_TOPOLOGY_ZONE: "eu-west-1a"
       FB_READ_FROM_HEAD: "Off"
       FB_READ_FROM_TAIL: "On"
-      VMSINGLE_TAG: "v1.75.1" # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
+      VMSINGLE_TAG: "v1.76.0" # {"$imagepolicy": "flux-system:victoria-metrics-vmsingle-steve-dev-cluster:tag"}
   timeout: 2m
   patches:
   - patch: |-
