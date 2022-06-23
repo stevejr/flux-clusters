@@ -1,0 +1,85 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: cert-manager-crds
+  namespace: flux-system
+spec:
+  interval: 10m
+  url: ssh://git@github.com/stevejr/flux-infra.git
+  secretRef:
+    name: flux-infra-ssh-credentials
+  ref:
+    branch: main
+  ignore: |
+    # exclude all
+    /*
+    # include apps/cert-manager/crds directory
+    !/apps/cert-manager/crds
+---
+# All apps for the environment under 1 Kustomization object
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: cert-manager-crds
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  dependsOn:
+    - name: system
+  sourceRef:
+    kind: GitRepository
+    name: cert-manager-crds
+  path: ./apps/cert-manager/crds/1.1.0
+  prune: false
+  timeout: 2m
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: cert-manager
+  namespace: flux-system
+spec:
+  interval: 10m
+  url: ssh://git@github.com/stevejr/flux-infra.git
+  secretRef:
+    name: flux-infra-ssh-credentials
+  ref:
+    branch: main
+  ignore: |
+    # exclude all
+    /*
+    # include apps/cert-manager directory
+    !/apps/cert-manager
+    # include the cluster directory
+    !/clusters/dev/steve-dev-cluster1/cert-manager
+---
+# All apps for the environment under 1 Kustomization object
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: cert-manager
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  dependsOn:
+    - name: system
+    - name: cert-manager-crds
+  sourceRef:
+    kind: GitRepository
+    name: cert-manager
+  path: ./clusters/dev/steve-dev-cluster1/cert-manager
+  prune: false
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: cert-manager
+      namespace: cert-manager
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: cert-manager-cainjector
+      namespace: cert-manager
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: cert-manager-webhook
+      namespace: cert-manager
+  timeout: 2m
