@@ -27,7 +27,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: cert-manager-crds
-  path: ./apps/cert-manager/crds/1.1.0
+  path: ./apps/cert-manager/crds/1.2.0
   prune: false
   timeout: 2m
 ---
